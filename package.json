@@ -1,1 +1,71 @@
-# init 🚧 ..
+{
+  "name": "koa-fast-router",
+  "version": "0.0.0",
+  "main": "index.js",
+  "description": "The fastest elegant modern amiable Koa.js Router ⚡.",
+  "files": [
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3imed-jaberi/koa-fast-router.git"
+  },
+  "scripts": {
+    "size": "bundlesize --config bundlesize.config.json",
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "mocha index.spec.js --exit",
+    "precoverage": "rimraf .nyc_output coverage",
+    "coverage": "nyc npm run test",
+    "preci": "npm run size",
+    "ci": "npm run coverage"
+  },
+  "keywords": [
+    "koa",
+    "koa-fast-router",
+    "middleware",
+    "router",
+    "fast-router",
+    "route",
+    "http",
+    "server",
+    "fast",
+    "crazy",
+    "echo"
+  ],
+  "author": {
+    "name": "imed jaberi",
+    "email": "imed-jaberi@outlook.com",
+    "url": "https://www.3imed-jaberi.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "koa-compose": "^4.1.0",
+    "trek-router": "^1.2.0"
+  },
+  "peerDependencies": {
+    "koa": "^2.0.0"
+  },
+  "devDependencies": {
+    "bundlesize": "^0.18.1",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "koa": "^2.13.0",
+    "mocha": "^7.1.1",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "should": "^13.2.3",
+    "supertest": "^4.0.2"
+  },
+  "enignes": {
+    "node": ">= 10"
+  },
+  "bugs": {
+    "url": "https://github.com/3imed-jaberi/koa-fast-router/issues"
+  },
+  "homepage": "https://github.com/3imed-jaberi/koa-fast-router#readme"
+}
