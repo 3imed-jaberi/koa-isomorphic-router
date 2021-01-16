@@ -1,5 +1,5 @@
 {
-  "name": "koa-fast-router",
+  "name": "koa-isomorphic-router",
   "version": "0.1.0",
   "main": "index.js",
   "description": "The fastest elegant modern amiable Koa.js Router ⚡.",
@@ -8,7 +8,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/3imed-jaberi/koa-fast-router.git"
+    "url": "git+https://github.com/3imed-jaberi/koa-isomorphic-router.git"
   },
   "scripts": {
     "size": "bundlesize --config bundlesize.config.json",
@@ -22,16 +22,17 @@
   },
   "keywords": [
     "koa",
-    "koa-fast-router",
+    "koa-isomorphic-router",
     "middleware",
     "router",
+    "isomorphic-router",
     "fast-router",
     "route",
     "http",
     "server",
+    "isomorphic",
     "fast",
-    "crazy",
-    "echo"
+    "crazy"
   ],
   "author": {
     "name": "imed jaberi",
@@ -65,7 +66,7 @@
     "node": ">= 10"
   },
   "bugs": {
-    "url": "https://github.com/3imed-jaberi/koa-fast-router/issues"
+    "url": "https://github.com/3imed-jaberi/koa-isomorphic-router/issues"
   },
-  "homepage": "https://github.com/3imed-jaberi/koa-fast-router#readme"
+  "homepage": "https://github.com/3imed-jaberi/koa-isomorphic-router#readme"
 }
