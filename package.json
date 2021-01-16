@@ -1,6 +1,6 @@
 {
   "name": "koa-fast-router",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "main": "index.js",
   "description": "The fastest elegant modern amiable Koa.js Router ⚡.",
   "files": [

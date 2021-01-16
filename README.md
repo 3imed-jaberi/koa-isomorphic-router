@@ -15,23 +15,23 @@
 
 <!-- ***************** -->
 
-[travis-img]: https://travis-ci.org/3imed-jaberi/koa-fast-router.svg?branch=master
-[travis-url]: https://travis-ci.org/3imed-jaberi/koa-fast-router
-[coverage-img]: https://coveralls.io/repos/github/3imed-jaberi/koa-fast-router/badge.svg?branch=master
-[coverage-url]: https://coveralls.io/github/3imed-jaberi/koa-fast-router?branch=master
-[npm-badge]: https://img.shields.io/npm/v/koa-fast-router.svg?style=flat
-[npm-url]: https://www.npmjs.com/package/koa-fast-router
+[travis-img]: https://travis-ci.org/3imed-jaberi/koa-isomorphic-router.svg?branch=master
+[travis-url]: https://travis-ci.org/3imed-jaberi/koa-isomorphic-router
+[coverage-img]: https://coveralls.io/repos/github/3imed-jaberi/koa-isomorphic-router/badge.svg?branch=master
+[coverage-url]: https://coveralls.io/github/3imed-jaberi/koa-isomorphic-router?branch=master
+[npm-badge]: https://img.shields.io/npm/v/koa-isomorphic-router.svg?style=flat
+[npm-url]: https://www.npmjs.com/package/koa-isomorphic-router
 [license-badge]: https://img.shields.io/badge/license-MIT-green.svg?style=flat
-[license-url]: https://github.com/3imed-jaberi/koa-fast-router/blob/master/LICENSE
-[code-size-badge]: https://img.shields.io/github/languages/code-size/3imed-jaberi/koa-fast-router
-[node-js-badge]: https://img.shields.io/node/v/koa-fast-router.svg?style=flat
+[license-url]: https://github.com/3imed-jaberi/koa-isomorphic-router/blob/master/LICENSE
+[code-size-badge]: https://img.shields.io/github/languages/code-size/3imed-jaberi/koa-isomorphic-router
+[node-js-badge]: https://img.shields.io/node/v/koa-isomorphic-router.svg?style=flat
 [node-js-url]: http://nodejs.org/download
 [pr-welcoming-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat
 [pr-welcoming-url]: https://github.com/koajs/koa/pull/new
 
 [trek-router]: https://github.com/trekjs/router
 [echo-router]: https://github.com/labstack/echo
-[support-url]: https://github.com/koajs/3imed-jaberi/koa-fast-router
+[support-url]: https://github.com/koajs/3imed-jaberi/koa-isomorphic-router
 
 <!-- ***************** -->
 
@@ -57,9 +57,9 @@
 
 ```bash
 # npm
-$ npm install koa-better-response-handler
+$ npm install koa-isomorphic-router
 # yarn
-$ yarn add koa-better-response-handler
+$ yarn add koa-isomorphic-router
 ```
 
 
@@ -69,7 +69,7 @@ This is a practical example of how to use.
 
 ```javascript
 const Koa = require('koa')
-const Router = require('koa-fast-router')
+const Router = require('koa-isomorphic-router')
 
 const app = new Koa()
 const router = Router()
