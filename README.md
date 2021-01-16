@@ -32,6 +32,12 @@
 [trek-router]: https://github.com/trekjs/router
 [echo-router]: https://github.com/labstack/echo
 [support-url]: https://github.com/koajs/3imed-jaberi/koa-isomorphic-router
+[path-to-regexp]: https://github.com/pillarjs/path-to-regexp
+[route-recognizer]: https://github.com/tildeio/route-recognizer
+[route-trie]: https://github.com/zensh/route-trie
+[routington]: https://github.com/pillarjs/routington
+
+[benchmarks-url]: https://github.com/trekjs/router#benchmarks
 
 <!-- ***************** -->
 
@@ -52,6 +58,14 @@
 * 🧼 Support `trailing slash` and `fixed path` by automatic redirection.
 * ✨ Asynchronous support (`async/await`).
 
+## `Benchmarks`
+
+All Koa router solutions depend on [path-to-regexp][] when our solution 
+relies on the [trek-router][] which has the best performance and not over 
+the [path-to-regexp][] only also on others such as ([route-recognizer][], 
+[route-trie][], [routington][] ...etc).
+
+See [benchmarks ref][benchmarks-url].
 
 ## `Installation`
 
