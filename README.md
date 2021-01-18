@@ -6,7 +6,6 @@
 [![Build Status][travis-img]][travis-url]
 [![Coverage Status][coverage-img]][coverage-url]
 [![NPM version][npm-badge]][npm-url]
-[![Node.js Version][node-js-badge]][node-js-url]
 ![Code Size][code-size-badge]
 [![License][license-badge]][license-url]
 [![PR's Welcome][pr-welcoming-badge]][pr-welcoming-url]
@@ -24,8 +23,6 @@
 [license-badge]: https://img.shields.io/badge/license-MIT-green.svg?style=flat
 [license-url]: https://github.com/3imed-jaberi/koa-isomorphic-router/blob/master/LICENSE
 [code-size-badge]: https://img.shields.io/github/languages/code-size/3imed-jaberi/koa-isomorphic-router
-[node-js-badge]: https://img.shields.io/node/v/koa-isomorphic-router.svg?style=flat
-[node-js-url]: http://nodejs.org/download
 [pr-welcoming-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat
 [pr-welcoming-url]: https://github.com/koajs/koa/pull/new
 
@@ -37,7 +34,8 @@
 [route-trie]: https://github.com/zensh/route-trie
 [routington]: https://github.com/pillarjs/routington
 
-[benchmarks-url]: https://github.com/trekjs/router#benchmarks
+[trek-router-benchmarks-url]: https://github.com/trekjs/router#benchmarks
+[fastify-benchmarks-url]: https://github.com/fastify/benchmarks#benchmarks
 [405-501-warn]: https://github.com/3imed-jaberi/koa-isomorphic-router/blob/master/index.js#L140
 
 <!-- ***************** -->
@@ -68,7 +66,8 @@ relies on the [trek-router][] which has the best performance and not over
 the [path-to-regexp][] only also on others such as ([route-recognizer][], 
 [route-trie][], [routington][] ...etc).
 
-See [benchmarks ref][benchmarks-url].
+* [x] See trek-router [benchmarks][trek-router-benchmarks-url] <small>(`trek-router` better perf. than `path-to-regexp`)</small>. <br />
+* [x] See fastify [benchmarks][fastify-benchmarks-url] <small>(`koa-isomorphic-router` better perf. than `koa-router`)</small>.
 
 
 ## `Installation`
