@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-### v0.2.0 (18 Jan 2021)
+### v0.2.0 (19 Jan 2021)
   * improve the perf.
   * remove the `.on()` method support.
   * early handle the `option` request.
