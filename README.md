@@ -1,6 +1,6 @@
 <div align='center'>
 
-# Koa Fast Router
+# Koa Isomorphic Router
 ---
 
 [![Build Status][travis-img]][travis-url]
@@ -38,10 +38,12 @@
 [routington]: https://github.com/pillarjs/routington
 
 [benchmarks-url]: https://github.com/trekjs/router#benchmarks
+[405-501-warn]: https://github.com/3imed-jaberi/koa-isomorphic-router/blob/master/index.js#L140
 
 <!-- ***************** -->
 
 ### The fastest elegant modern amiable Koa.js Router ⚡.
+
 
 ## `Features`
 
@@ -49,14 +51,15 @@
 * 🚀 Faster than other Koa.js router solutions.
 * 💅🏻 Express-style routing (`app.get`, `app.post`, `app.put`, `app.delete`, etc.)
 * 🔥 Blaze and lightweight router.
-* ⚖️ Tiny Bundle: 1.7 kB (gzip)
+* ⚖️ Tiny Bundle: less than 2kB (gzip)
 * 🪁 Named URL parameters.
 * 🎯 Route middleware.
 * 🥞 Support router layer middlewares.
-* ❌ Support for `405 Method Not Allowed`.
 * 📋 Responds to `OPTIONS` requests with allowed methods.
 * 🧼 Support `trailing slash` and `fixed path` by automatic redirection.
 * ✨ Asynchronous support (`async/await`).
+* ⛔️ Support for `405 Method Not Allowed`. <small>[⚠️ warn.][405-501-warn]</small>
+
 
 ## `Benchmarks`
 
@@ -66,6 +69,7 @@ the [path-to-regexp][] only also on others such as ([route-recognizer][],
 [route-trie][], [routington][] ...etc).
 
 See [benchmarks ref][benchmarks-url].
+
 
 ## `Installation`
 
