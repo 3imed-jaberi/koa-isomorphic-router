@@ -1,12 +1,12 @@
 const Koa = require('koa')
 const request = require('supertest')
-const should = require('should')
+const assert = require('assert')
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 const fastRouter = require('.')
 
 describe('koa-fast-router', () => {
   it('should return a object', () => {
-    should.equal(typeof fastRouter(), 'object')
+    assert.strictEqual(typeof fastRouter(), 'object')
   })
 
   describe('http verbs/methods', () => {
