@@ -1,6 +1,6 @@
 {
   "name": "koa-isomorphic-router",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "main": "index.js",
   "description": "The fastest elegant modern amiable Koa.js Router ⚡.",
   "files": [
@@ -60,7 +60,6 @@
     "mocha": "^7.1.1",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
-    "should": "^13.2.3",
     "supertest": "^4.0.2"
   },
   "enignes": {
