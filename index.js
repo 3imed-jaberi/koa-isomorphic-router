@@ -1,5 +1,5 @@
 /*!
- * koa-fast-router
+ * koa-isomorphic-router
  *
  *
  * Copyright(c) 2021 Imed Jaberi
@@ -11,9 +11,9 @@
 /**
  * Module dependencies.
  */
-const { METHODS } = require('http')
 const FastRouter = require('trek-router')
 const koaCompose = require('koa-compose')
+const LRUCache = require('mnemonist/lru-cache')
 
 /**
  * Expose `Router()`.
@@ -29,13 +29,9 @@ function Router () {
   // init vars.
   const fastRouter = new FastRouter()
   const koaFastRouter = {}
-  const store = {
-    allowHeader: [
-      { path: '', methods: [] }
-    ]
-    // ===> Related to 501 Not Imp. <=== //
-    // paths: []
-  }
+  const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+  let allowHeaderStore = [{ path: '', methods: [] }]
+  const cache = new LRUCache(1000)
 
   // normalize the path by remove all trailing slash.
   function normalizePath (path) {
@@ -47,56 +43,40 @@ function Router () {
     return path
   }
 
-  // ===> Related to 501 Not Imp. <=== //
-  // ignore favicon request.
-  // source: https://github.com/3imed-jaberi/koa-no-favicon/blob/master/index.js
-  // check if exist favicon pattern.
-  // function isFavicon(path) {
-  //   return /\/favicon\.?(jpe?g|png|ico|gif)?$/i.test(path)
-  // }
-
   // get allow header for specific path.
   function getAllowHeaderTuple (path) {
-    return store.allowHeader.find(allow => allow.path === path)
-  }
-
-  // register method as allow header filed.
-  function allowHeader (path, method) {
-    // allow header.
-    const allow = getAllowHeaderTuple(path)
-
-    // if this path added at the 1st time.
-    if (!allow) {
-      store.allowHeader.push({ path, methods: [method] })
-      return
-    }
-
-    // this path was added.
-    store.allowHeader = [
-      ...store.allowHeader,
-      {
-        path,
-        methods: [
-          // unique val array
-          ...new Set([...allow.methods, method])
-        ]
-      }
-    ]
+    return allowHeaderStore.find(allow => allow.path === path)
   }
 
   // register route with specific method.
   function on (method, path, ...middlewares) {
     // normalize the path.
     path = normalizePath(path)
-    // register method as allow header filed
-    allowHeader(path, method)
-    // store.allowHeader.push(method)
 
-    // ===> Related to 501 Not Imp. <=== //
-    // register all paths inside the store.
-    // store.paths.push(path)
+    // register path with method(s) to re-use as allow header filed.
+    // allow header.
+    const allow = getAllowHeaderTuple(path)
 
+    // stock to allow header store.
+    allowHeaderStore = [
+      ...allowHeaderStore,
+      {
+        path,
+        methods: (
+          // allow header.
+          !allow
+            // if this path added at the 1st time.
+            ? [method]
+            // this path was added prev.
+            // unique val array.
+            : [...new Set([...allow.methods, method])]
+        )
+      }
+    ]
+
+    // register to route to the trek-router stack.
     fastRouter.add(method, path, koaCompose(middlewares))
+
     return koaFastRouter
   }
 
@@ -106,12 +86,9 @@ function Router () {
   }
 
   // append registers methods to koaFastRouter.
-  koaFastRouter.on = on
   koaFastRouter.all = all
 
-  // create `router.verbs()` methods, where
-  // *verb* is one of the HTTP verbs such
-  // as `router.get()` or `router.post()`.
+  // `router.verbs()` methods, where *verb* is one of the HTTP verbs.
   METHODS.forEach((method) => {
     koaFastRouter[method.toLowerCase()] = (path, ...middlewares) => on(method, path, ...middlewares)
   })
@@ -120,6 +97,8 @@ function Router () {
   koaFastRouter.routes = () => async (ctx, next) => {
     // normalize the path.
     const path = normalizePath(ctx.path)
+    // init route matched var.
+    let route
 
     // have slashs ~ solve trailing slash.
     if (path !== ctx.path) {
@@ -128,38 +107,47 @@ function Router () {
       return
     }
 
-    // find route inside the routes stack.
-    const route = fastRouter.find(ctx.method, ctx.path)
+    // if `OPTIONS` request responds with allowed methods.
+    if (ctx.method === 'OPTIONS') {
+      ctx.status = 204
+      ctx.set('Allow', getAllowHeaderTuple(path).methods.join(', '))
+      ctx.body = ''
+      return
+    }
 
-    // ===> Need More Word Here <=== //
-    // if not exist the current path inside
-    // the registred paths ~ 501 Not Implemented.
-    // if (!isFavicon(path) && !store.paths.find(p => p === path)) {
-    //   ctx.throw(501, `"${ctx.path}" not implemented.`)
-    // }
+    // generate the cache key.
+    const requestCacheKey = `${ctx.method}_${ctx.path}`
+    // get the route from the cache.
+    route = cache.get(requestCacheKey)
 
-    // if exit route.
+    // if the current request not cached.
+    if (!route) {
+      // find route inside the routes stack.
+      route = fastRouter.find(ctx.method, ctx.path)
+      // put the matched route inside the cache.
+      cache.set(requestCacheKey, route)
+    }
+
     // extract the handler func and the params array.
     const [handler, routeParams] = route
 
-    // check the handler func isn't defined ~ 405 Method Not Allowed.
+    // check the handler func isn't defined.
     if (!handler) {
-      // OPTIONS support
-      if (ctx.method === 'OPTIONS') {
-        ctx.status = 204
-        ctx.set('Allow', getAllowHeaderTuple(path).methods.join(', '))
-        ctx.body = ''
-        return
-      }
+      // warning: need more work with trek-router.
+      // 501 if not exist the current path inside router stack.
+      // 405 if exist the current path inside the router stack but with diff method than requested.
 
-      ctx.throw(405, `"${ctx.method}" is not allowed in "${ctx.path}"`)
+      // the current version support the path not impl. as method not allowed.
+      // support 405 method not allowed.
+      ctx.throw(405, `"${ctx.method}" is not allowed in "${ctx.path}".`)
+
+      // suport 501 not implemented.
+      // ctx.throw(501, `"${ctx.path}" not implemented.`)
     }
 
     // check if the route params isn't empty array.
     if (routeParams.length > 0) {
-      // parse the params if exist
-      // from [{name: 'msg', value: 'hello world!' }]
-      // to {msg: 'hello world!'}.
+      // parse the params if exist.
       const params = {}
       routeParams.forEach(({ name: key, value }) => { params[key] = value })
 
@@ -169,8 +157,6 @@ function Router () {
 
     // wait the handler.
     await handler(ctx)
-
-    await next()
   }
 
   return koaFastRouter
