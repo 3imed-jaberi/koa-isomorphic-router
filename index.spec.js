@@ -1,7 +1,7 @@
 const Koa = require('koa')
 const request = require('supertest')
 const should = require('should')
-const { METHODS } = require('http')
+const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 const fastRouter = require('.')
 
 describe('koa-fast-router', () => {
@@ -67,11 +67,6 @@ describe('koa-fast-router', () => {
         method = method.toLowerCase()
 
         it(method, (done) => {
-          if (method === 'connect') {
-            // CONNECT is tricky and supertest doesn't support it
-            return done()
-          }
-
           request(app.listen())[method]('/test').expect(200, done())
         })
       })
@@ -112,6 +107,24 @@ describe('koa-fast-router', () => {
       .get('/test')
       .expect(200, done)
   })
+
+  it('cache test', done => {
+    const app = createKoaApp('get')
+
+    // no cached request.
+    request(app.listen())
+      .get('/test')
+      .expect('Content-Type', /json/)
+      .expect(/get/)
+      .expect(200, () => {
+        // cached request.
+        request(app.listen())
+          .get('/test')
+          .expect('Content-Type', /json/)
+          .expect(/get/)
+          .expect(200, done)
+      })
+  })
 })
 
 // util
@@ -126,7 +139,6 @@ function createKoaApp (method, path, params, methods) {
     const msg = path
       ? `${method} data`
       : `${method} data ${params ? ctx.params.state : ''}`
-    console.log('**', msg)
     ctx.body = { msg }
   })
 
