@@ -2,11 +2,11 @@ const Koa = require('koa')
 const request = require('supertest')
 const assert = require('assert')
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-const fastRouter = require('.')
+const FastRouter = require('.')
 
 describe('koa-fast-router', () => {
   it('should return a object', () => {
-    assert.strictEqual(typeof fastRouter(), 'object')
+    assert.strictEqual(typeof new FastRouter(), 'object')
   })
 
   describe('http verbs/methods', () => {
@@ -125,27 +125,70 @@ describe('koa-fast-router', () => {
           .expect(200, done)
       })
   })
+
+  describe('prefix', () => {
+    it('prefix arg', done => {
+      const app = createKoaApp('get', undefined, undefined, undefined, '/pretest')
+
+      request(app.listen())
+        .get('/pretest/test')
+        .expect('Content-Type', /json/)
+        .expect(/get/)
+        .expect(200, done)
+    })
+
+    it('prefix method with good arg', done => {
+      const app = createKoaApp('get', undefined, undefined, undefined, undefined, '/pretest')
+
+      request(app.listen())
+        .get('/pretest/test')
+        .expect('Content-Type', /json/)
+        .expect(/get/)
+        .expect(200, done)
+    })
+
+    it('prefix method with bad arg', done => {
+      const app = createKoaApp('get', undefined, undefined, undefined, undefined, { prefix: '/pretest' })
+
+      request(app.listen())
+        .get('/test')
+        .expect('Content-Type', /json/)
+        .expect(/get/)
+        .expect(200, done)
+    })
+  })
 })
 
 // util
-function createKoaApp (method, path, params, methods) {
+function createKoaApp (method, path, params, methods, prefixArg, prefixMethod) {
   // init
   const app = new Koa()
-  const router = fastRouter()
+  const router = new FastRouter(prefixArg ? { prefix: prefixArg } : {})
 
-  // register a route
-  router[method](path || params ? '/test/:state' : '/test', (ctx) => {
-    ctx.status = 200
-    const msg = path
-      ? `${method} data`
-      : `${method} data ${params ? ctx.params.state : ''}`
-    ctx.body = { msg }
-  })
-
-  if (methods) {
-    methods.forEach(m => {
-      router[m](path || params ? '/test/:state' : '/test', (ctx) => {})
+  // prefix test
+  if (prefixMethod) {
+    router.prefix(prefixMethod)[method](path || params ? '/test/:state' : '/test', (ctx) => {
+      ctx.status = 200
+      const msg = path
+        ? `${method} data`
+        : `${method} data ${params ? ctx.params.state : ''}`
+      ctx.body = { msg }
     })
+  } else {
+    // register a route
+    router[method](path || params ? '/test/:state' : '/test', (ctx) => {
+      ctx.status = 200
+      const msg = path
+        ? `${method} data`
+        : `${method} data ${params ? ctx.params.state : ''}`
+      ctx.body = { msg }
+    })
+
+    if (methods) {
+      methods.forEach(m => {
+        router[m](path || params ? '/test/:state' : '/test', (ctx) => {})
+      })
+    }
   }
 
   // add router middelware
