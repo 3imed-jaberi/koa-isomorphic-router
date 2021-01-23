@@ -40,7 +40,8 @@ class Router {
   constructor (options = {}) {
     this.fastRouter = new FastRouter()
     this.METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-    this._prefix = typeof options.prefix === 'string' ? options.prefix : '/'
+    this.routePrefix = typeof options.prefix === 'string' ? options.prefix : '/'
+    this.routePath = undefined
     this.cache = hashlruCache(1000)
     this.allowHeaderStore = [{ path: '', methods: [] }]
 
@@ -54,9 +55,16 @@ class Router {
   }
 
   // register route with specific method.
+  // TODO: use private when re-write with TS.
   on (method, path, ...middlewares) {
+    // handle the path arg when passed as middleware.
+    if (typeof path !== 'string') {
+      middlewares = [path, ...middlewares]
+      path = this.routePath
+    }
+
     // normalize the path.
-    path = normalizePath(this._prefix + path)
+    path = normalizePath(this.routePrefix + path)
 
     // register path with method(s) to re-use as allow header filed.
     // allow header.
@@ -85,10 +93,15 @@ class Router {
     return this
   }
 
-  // prefix method
+  // give access to write once the path of route.
+  route (path) {
+    this.routePath = path
+    return this
+  }
+
+  // add prefix to route path.
   prefix (prefix) {
-    // add prefix.
-    this._prefix = typeof prefix === 'string' ? prefix : '/'
+    this.routePrefix = typeof prefix === 'string' ? prefix : '/'
     return this
   }
 
