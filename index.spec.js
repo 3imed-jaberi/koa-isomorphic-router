@@ -126,6 +126,16 @@ describe('koa-fast-router', () => {
       })
   })
 
+  it('route method', done => {
+    const app = createKoaApp('get', undefined, undefined, undefined, undefined, undefined, true)
+
+    request(app.listen())
+      .get('/route')
+      .expect('Content-Type', /json/)
+      .expect(/get/)
+      .expect(200, done)
+  })
+
   describe('prefix', () => {
     it('prefix arg', done => {
       const app = createKoaApp('get', undefined, undefined, undefined, '/pretest')
@@ -160,7 +170,7 @@ describe('koa-fast-router', () => {
 })
 
 // util
-function createKoaApp (method, path, params, methods, prefixArg, prefixMethod) {
+function createKoaApp (method, path, params, methods, prefixArg, prefixMethod, routeMethod) {
   // init
   const app = new Koa()
   const router = new FastRouter(prefixArg ? { prefix: prefixArg } : {})
@@ -173,6 +183,11 @@ function createKoaApp (method, path, params, methods, prefixArg, prefixMethod) {
         ? `${method} data`
         : `${method} data ${params ? ctx.params.state : ''}`
       ctx.body = { msg }
+    })
+  } else if (routeMethod) {
+    router.route('/route')[method]((ctx) => {
+      ctx.status = 200
+      ctx.body = { msg: `${method} data` }
     })
   } else {
     // register a route
