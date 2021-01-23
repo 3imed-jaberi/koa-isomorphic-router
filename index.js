@@ -13,7 +13,7 @@
  */
 const FastRouter = require('trek-router')
 const koaCompose = require('koa-compose')
-const LRUCache = require('mnemonist/lru-cache')
+const hashlruCache = require('hashlru')
 
 /**
  * Expose `Router()`.
@@ -31,7 +31,7 @@ function Router () {
   const koaFastRouter = {}
   const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
   let allowHeaderStore = [{ path: '', methods: [] }]
-  const cache = new LRUCache(1000)
+  const cache = hashlruCache(1000)
 
   // normalize the path by remove all trailing slash.
   function normalizePath (path) {
