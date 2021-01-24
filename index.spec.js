@@ -167,10 +167,48 @@ describe('koa-fast-router', () => {
         .expect(200, done)
     })
   })
+
+  describe('use method', () => {
+    it('use method with bad args', () => {
+      assert.throws(() => {
+        createKoaApp(
+          'get',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'bad args'
+        )
+      })
+    })
+
+    it('use method with good arg', done => {
+      const app = createKoaApp(
+        'get',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        (ctx, next) => {
+          console.log('logger', ctx.status, ctx.path)
+          return next
+        })
+
+      request(app.listen())
+        .get('/use')
+        .expect('Content-Type', /json/)
+        .expect(/get/)
+        .expect(200, done)
+    })
+  })
 })
 
 // util
-function createKoaApp (method, path, params, methods, prefixArg, prefixMethod, routeMethod) {
+function createKoaApp (method, path, params, methods, prefixArg, prefixMethod, routeMethod, useMethod) {
   // init
   const app = new Koa()
   const router = new FastRouter(prefixArg ? { prefix: prefixArg } : {})
@@ -186,6 +224,11 @@ function createKoaApp (method, path, params, methods, prefixArg, prefixMethod, r
     })
   } else if (routeMethod) {
     router.route('/route')[method]((ctx) => {
+      ctx.status = 200
+      ctx.body = { msg: `${method} data` }
+    })
+  } else if (useMethod) {
+    router.use(useMethod)[method]('/use', (ctx) => {
       ctx.status = 200
       ctx.body = { msg: `${method} data` }
     })
