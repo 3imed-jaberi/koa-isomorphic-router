@@ -11,9 +11,16 @@
 /**
  * Module dependencies.
  */
+
 const FastRouter = require('trek-router')
 const koaCompose = require('koa-compose')
 const hashlruCache = require('hashlru')
+
+/**
+ * Some utils funcs.
+ *
+ * @api private
+ */
 
 // normalize the path by remove all trailing slash.
 function normalizePath (path) {
@@ -31,13 +38,15 @@ function getAllowHeaderTuple (allowHeaderStore, path) {
 }
 
 /**
- * Fast Router for Koa.js.
+ * Fast and isomorphic Router for Koa.js.
  *
  * @api public
  */
+
 class Router {
   // init Router.
   constructor (options = {}) {
+    // init attributes.
     this.fastRouter = new FastRouter()
     this.METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
     this.routePrefix = typeof options.prefix === 'string' ? options.prefix : '/'
@@ -47,16 +56,13 @@ class Router {
     this.allowHeaderStore = [{ path: '', methods: [] }]
 
     // `router.verbs()` methods, where *verb* is one of the HTTP verbs.
-    this.METHODS.forEach((method) => {
-      this[method.toLowerCase()] = this.on.bind(this, method)
-    })
+    this.METHODS.forEach((method) => { this[method.toLowerCase()] = this.on.bind(this, method) })
 
     // `router.all()` method >> register route with all methods.
     this.all = this.on.bind(this, this.METHODS.map(method => method.toLowerCase()))
   }
 
   // register route with specific method.
-  // TODO: use private when re-write with TS.
   on (method, path, ...middlewares) {
     // handle the path arg when passed as middleware.
     if (typeof path !== 'string') {
@@ -71,26 +77,16 @@ class Router {
     // allow header.
     const allow = getAllowHeaderTuple(this.allowHeaderStore, path)
 
-    // stock to allow header store.
+    // stock to allow header store with unique val array.
     this.allowHeaderStore = [
       ...this.allowHeaderStore,
-      {
-        path,
-        methods: (
-          // allow header.
-          !allow
-            // if this path added at the 1st time.
-            ? [method]
-            // this path was added prev.
-            // unique val array.
-            : [...new Set([...allow.methods, method])]
-        )
-      }
+      { path, methods: !allow ? [method] : [...new Set([...allow.methods, method])] }
     ]
 
     // register to route to the trek-router stack.
     this.fastRouter.add(method, path, koaCompose(middlewares))
 
+    // give access to other method after use the current one.
     return this
   }
 
@@ -102,7 +98,10 @@ class Router {
 
   // give access to write once the path of route.
   route (path) {
+    // update the route-path.
     this.routePath = path
+
+    // give access to other method after use the current one.
     return this
   }
 
@@ -116,6 +115,7 @@ class Router {
     // add the current middlewares to the store.
     this.middlewaresStore = [...this.middlewaresStore, ...middlewares]
 
+    // give access to other method after use the current one.
     return this
   }
 
@@ -161,8 +161,11 @@ class Router {
       // check the handler func isn't defined.
       if (!handler) {
         // warning: need more work with trek-router.
-        // 501 if not exist the current path inside router stack.
-        // 405 if exist the current path inside the router stack but with diff method than requested.
+        // - 501: the current path isn't exist inside the router stack.
+        // - 405: the current path is exist inside the router stack with diff method than requested.
+        // - remove the throwing decision and use `option.throw`.
+        // - make the throw way more flexible by pass `option.methodNotAllowed` func for 405
+        // and `option.notImplemented` for 501 and make example with `@hapi/boom` methods.
 
         // the current version support the path not impl. as method not allowed.
         // support 405 method not allowed.
@@ -194,4 +197,5 @@ class Router {
 /**
  * Expose `Router()`.
  */
+
 module.exports = Router
