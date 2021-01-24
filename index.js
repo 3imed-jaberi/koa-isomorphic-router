@@ -108,8 +108,7 @@ class Router {
 
   // use given middleware, if and only if, a route is matched.
   use (...middlewares) {
-    console.log(middlewares)
-    // check the use args.
+    // check middlewares.
     if (middlewares.some(mw => typeof mw !== 'function')) {
       throw new TypeError('".use()" requires a middleware(s) function(s)')
     }
