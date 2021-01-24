@@ -42,6 +42,7 @@ class Router {
     this.METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
     this.routePrefix = typeof options.prefix === 'string' ? options.prefix : '/'
     this.routePath = undefined
+    this.middlewaresStore = []
     this.cache = hashlruCache(1000)
     this.allowHeaderStore = [{ path: '', methods: [] }]
 
@@ -93,15 +94,29 @@ class Router {
     return this
   }
 
+  // add prefix to route path.
+  prefix (prefix) {
+    this.routePrefix = typeof prefix === 'string' ? prefix : '/'
+    return this
+  }
+
   // give access to write once the path of route.
   route (path) {
     this.routePath = path
     return this
   }
 
-  // add prefix to route path.
-  prefix (prefix) {
-    this.routePrefix = typeof prefix === 'string' ? prefix : '/'
+  // use given middleware, if and only if, a route is matched.
+  use (...middlewares) {
+    console.log(middlewares)
+    // check the use args.
+    if (middlewares.some(mw => typeof mw !== 'function')) {
+      throw new TypeError('".use()" requires a middleware(s) function(s)')
+    }
+
+    // add the current middlewares to the store.
+    this.middlewaresStore = [...this.middlewaresStore, ...middlewares]
+
     return this
   }
 
@@ -167,6 +182,9 @@ class Router {
         // append params to ctx and ctx.request.
         ctx.params = ctx.request.params = params
       }
+
+      // wait to all middlewares stored by the `use` method.
+      await Promise.all(this.middlewaresStore)
 
       // wait the handler.
       await handler(ctx)
