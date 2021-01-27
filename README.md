@@ -124,8 +124,8 @@ Create a new router.
 
 | Param | Type  | Description |
 | ---   | ---   | ---         |
-| [opts] | `Object` |  |
-| [opts.prefix] | `String` | prefix router paths |
+| [options] | `Object` |  |
+| [options.prefix] | `String` | prefix router paths |
 | [options.throw] | `Boolean` | throw error instead of setting status and header |
 | [options.notImplemented] | `function` | throw the returned value in place of the default NotImplemented error |
 | [options.methodNotAllowed] | `function` | throw the returned value in place of the default MethodNotAllowed error |
