@@ -120,7 +120,15 @@ https://github.com/koajs/router/blob/master/API.md
 
 ### new Router(options?)
 
-h
+Create a new router.
+
+| Param | Type  | Description |
+| ---   | ---   | ---         |
+| [opts] | `Object` |  |
+| [opts.prefix] | `String` | prefix router paths |
+| [options.throw] | `Boolean` | throw error instead of setting status and header |
+| [options.notImplemented] | `function` | throw the returned value in place of the default NotImplemented error |
+| [options.methodNotAllowed] | `function` | throw the returned value in place of the default MethodNotAllowed error |
 
 ### router.get|post|put|patch|delete|all(path, ...middlewares)
 
@@ -130,21 +138,35 @@ Method middleware and handlers follow usual Koa middleware behavior,
 except they will only be called when the method and path match the request.
 
 ```js
-// handle a `GET` request
+// handle a GET / request.
 router.get('/', (ctx) => { ctx.body = 'Hello World!' })
 ```
 
 ### router.prefix(prePath)
 
-hh
+Route paths can be prefixed at the router level:
+
+```js
+// handle a GET /prePath/users request.
+router
+  .prefix('/prePath')
+  .get('/users', (ctx) => { ctx.body = 'Hello World!' })
+```
 
 ### router.route(path)
 
-hhhh
+Lookup route with given path.
+
+```js
+// handle a GET /users request.
+router
+  .route('/users')
+  .get((ctx) => { ctx.body = 'Hello World!' })
+```
 
 ### router.use(...middlewares)
 
-hhh
+Use given middleware(s). Currently, use middleware(s) for all paths.
 
 ### router.routes()
 
