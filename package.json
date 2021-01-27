@@ -2,6 +2,7 @@
   "name": "koa-isomorphic-router",
   "version": "0.2.0",
   "main": "index.js",
+  "types": "index.d.ts",
   "description": "The fastest elegant modern amiable Koa.js Router ⚡.",
   "files": [
     "index.js"
@@ -41,8 +42,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "hashlru": "^2.3.0",
     "koa-compose": "^4.1.0",
-    "mnemonist": "^0.38.1",
     "trek-router": "^1.2.0"
   },
   "peerDependencies": {
