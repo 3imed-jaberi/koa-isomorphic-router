@@ -104,9 +104,6 @@ class Router {
     return this
   }
 
-  // `router.verbs()` methods, where *verb* is one of the HTTP verbs.
-  // inside the constructor: this[METHODS].forEach((method) => { this[method.toLowerCase()] = this[on].bind(this, method) })
-
   // register route with get method.
   get (path, ...middlewares) {
     return this[on]('GET', path, ...middlewares)
@@ -168,7 +165,7 @@ class Router {
 
   // router middleware which handle a route matching the request.
   routes () {
-    return async (ctx, next) => {
+    return async (ctx) => {
       // normalize the path.
       const path = this[normalizePath](ctx.path)
 
