@@ -50,7 +50,7 @@
 * 🚀 Faster than other Koa.js router solutions.
 * 💅🏻 Express-style routing (`app.get`, `app.post`, `app.put`, `app.delete`, etc.)
 * 🔥 Blaze and lightweight router.
-* ⚖️ Tiny Bundle: less than 2kB (gzip)
+* ⚖️ Tiny Bundle: less than 2.5kB (gzip)
 * 🪁 Named URL parameters.
 * 🎯 Route middleware.
 * 🥞 Support router layer middlewares.
