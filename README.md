@@ -116,8 +116,6 @@ app.listen(5050);
 
 ## `API`
 
-https://github.com/koajs/router/blob/master/API.md
-
 ### new Router(options?)
 
 Create a new router.
