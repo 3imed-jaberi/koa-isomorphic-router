@@ -38,6 +38,7 @@
 [fastify-benchmarks-url]: https://github.com/fastify/benchmarks#benchmarks
 [405-501-warn]: https://github.com/3imed-jaberi/koa-isomorphic-router/blob/master/index.js#L204
 [trek-router-405-501-warn]: https://github.com/trekjs/router/issues/23
+[trek-router-reg-exp]: https://github.com/trekjs/router/issues/24
 
 <!-- ***************** -->
 
@@ -67,8 +68,11 @@ Currently, this modules support `405 Method Not Allowed`
 and `501 Path Not Implemented` for 'static' routes only 
 as you can see [here][405-501-warn].
 
-As soon as possible when we get response [here][trek-router-405-501-warn]
+As soon as possible when I get response [here][trek-router-405-501-warn]
 will support 'param' and 'match-any' routes.
+
+For support `RegExp` in route path also I waiting for 
+any response [here][trek-router-reg-exp].
 
 
 ## `Benchmarks`
