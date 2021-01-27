@@ -17,25 +17,27 @@ const koaCompose = require('koa-compose')
 const hashlruCache = require('hashlru')
 
 /**
- * Some utils funcs.
+ * Symbol(s) used to set some attributes and methods as private.
  *
  * @api private
  */
 
-// normalize the path by remove all trailing slash.
-function normalizePath (path) {
-  path = path.replace(/\/\/+/g, '/')
-  if (path !== '/' && path.slice(-1) === '/') {
-    path = path.slice(0, -1)
-  }
+// attributes.
+const fastRouter = Symbol('@@fastRouter$$')
+const METHODS = Symbol('@@METHODS$$')
+const throws = Symbol('@@throws$$')
+const methodNotAllowed = Symbol('@@methodNotAllowed$$')
+const notImplemented = Symbol('@@notImplemented$$')
+const routePrefix = Symbol('@@routePrefix$$')
+const routePath = Symbol('@@routePath$$')
+const middlewaresStore = Symbol('@@middlewaresStore$$')
+const cache = Symbol('@@cache$$')
+const allowHeaderStore = Symbol('@@allowHeaderStore$$')
 
-  return path
-}
-
-// get allow header for specific path.
-function getAllowHeaderTuple (allowHeaderStore, path) {
-  return allowHeaderStore.find(allow => allow.path === path)
-}
+// methods.
+const on = Symbol('@@on$$')
+const getAllowHeaderTuple = Symbol('@@getAllowHeaderTuple$$')
+const normalizePath = Symbol('@@normalizePath$$')
 
 /**
  * Fast and isomorphic Router for Koa.js.
@@ -47,59 +49,104 @@ class Router {
   // init Router.
   constructor (options = {}) {
     // init attributes.
-    this.fastRouter = new FastRouter()
-    this.METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-    this.routePrefix = typeof options.prefix === 'string' ? options.prefix : '/'
-    this.routePath = undefined
-    this.middlewaresStore = []
-    this.cache = hashlruCache(1000)
-    this.allowHeaderStore = [{ path: '', methods: [] }]
+    this[fastRouter] = new FastRouter()
+    this[METHODS] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    this[throws] = typeof options.throw === 'boolean' ? options.throw : false
+    this[methodNotAllowed] = options.methodNotAllowed
+    this[notImplemented] = options.notImplemented
+    this[routePrefix] = typeof options.prefix === 'string' ? options.prefix : '/'
+    this[routePath] = undefined
+    this[middlewaresStore] = []
+    this[cache] = hashlruCache(1000)
+    this[allowHeaderStore] = [] // [{ path: '', methods: [] }]
+  }
 
-    // `router.verbs()` methods, where *verb* is one of the HTTP verbs.
-    this.METHODS.forEach((method) => { this[method.toLowerCase()] = this.on.bind(this, method) })
+  // normalize the path by remove all trailing slash.
+  [normalizePath] (path) {
+    path = path.replace(/\/\/+/g, '/')
+    if (path !== '/' && path.slice(-1) === '/') {
+      path = path.slice(0, -1)
+    }
 
-    // `router.all()` method >> register route with all methods.
-    this.all = this.on.bind(this, this.METHODS.map(method => method.toLowerCase()))
+    return path
+  }
+
+  // get allow header for specific path.
+  [getAllowHeaderTuple] (path) {
+    return this[allowHeaderStore].find(allow => allow.path === path)
   }
 
   // register route with specific method.
-  on (method, path, ...middlewares) {
+  [on] (method, path, ...middlewares) {
     // handle the path arg when passed as middleware.
     if (typeof path !== 'string') {
       middlewares = [path, ...middlewares]
-      path = this.routePath
+      path = this[routePath]
     }
 
     // normalize the path.
-    path = normalizePath(this.routePrefix + path)
+    path = this[normalizePath](this[routePrefix] + path)
 
     // register path with method(s) to re-use as allow header filed.
     // allow header.
-    const allow = getAllowHeaderTuple(this.allowHeaderStore, path)
+    const allow = this[getAllowHeaderTuple](path)
 
     // stock to allow header store with unique val array.
-    this.allowHeaderStore = [
-      ...this.allowHeaderStore,
+    this[allowHeaderStore] = [...new Map([
+      ...this[allowHeaderStore],
       { path, methods: !allow ? [method] : [...new Set([...allow.methods, method])] }
-    ]
+    ].map(item => [item.path, item])).values()]
 
     // register to route to the trek-router stack.
-    this.fastRouter.add(method, path, koaCompose(middlewares))
+    this[fastRouter].add(method, path, koaCompose(middlewares))
 
     // give access to other method after use the current one.
     return this
   }
 
+  // `router.verbs()` methods, where *verb* is one of the HTTP verbs.
+  // inside the constructor: this[METHODS].forEach((method) => { this[method.toLowerCase()] = this[on].bind(this, method) })
+
+  // register route with get method.
+  get (path, ...middlewares) {
+    return this[on]('GET', path, ...middlewares)
+  }
+
+  // register route with post method.
+  post (path, ...middlewares) {
+    return this[on]('POST', path, ...middlewares)
+  }
+
+  // register route with put method.
+  put (path, ...middlewares) {
+    return this[on]('PUT', path, ...middlewares)
+  }
+
+  // register route with patch method.
+  patch (path, ...middlewares) {
+    return this[on]('PATCH', path, ...middlewares)
+  }
+
+  // register route with delete method.
+  delete (path, ...middlewares) {
+    return this[on]('DELETE', path, ...middlewares)
+  }
+
+  // `router.all()` method >> register route with all methods.
+  all (path, ...middlewares) {
+    return this[on](this[METHODS], path, ...middlewares)
+  }
+
   // add prefix to route path.
   prefix (prefix) {
-    this.routePrefix = typeof prefix === 'string' ? prefix : '/'
+    this[routePrefix] = typeof prefix === 'string' ? prefix : this[routePrefix]
     return this
   }
 
   // give access to write once the path of route.
   route (path) {
     // update the route-path.
-    this.routePath = path
+    this[routePath] = path
 
     // give access to other method after use the current one.
     return this
@@ -113,7 +160,7 @@ class Router {
     }
 
     // add the current middlewares to the store.
-    this.middlewaresStore = [...this.middlewaresStore, ...middlewares]
+    this[middlewaresStore] = [...this[middlewaresStore], ...middlewares]
 
     // give access to other method after use the current one.
     return this
@@ -123,7 +170,12 @@ class Router {
   routes () {
     return async (ctx, next) => {
       // normalize the path.
-      const path = normalizePath(ctx.path)
+      const path = this[normalizePath](ctx.path)
+
+      // ignore favicon request.
+      // src: https://github.com/3imed-jaberi/koa-no-favicon/blob/master/index.js
+      if (/\/favicon\.?(jpe?g|png|ico|gif)?$/i.test(ctx.path)) { return }
+
       // init route matched var.
       let route
 
@@ -134,25 +186,17 @@ class Router {
         return
       }
 
-      // if `OPTIONS` request responds with allowed methods.
-      if (ctx.method === 'OPTIONS') {
-        ctx.status = 204
-        ctx.set('Allow', getAllowHeaderTuple(this.allowHeaderStore, path).methods.join(', '))
-        ctx.body = ''
-        return
-      }
-
       // generate the cache key.
       const requestCacheKey = `${ctx.method}_${ctx.path}`
       // get the route from the cache.
-      route = this.cache.get(requestCacheKey)
+      route = this[cache].get(requestCacheKey)
 
       // if the current request not cached.
       if (!route) {
         // find route inside the routes stack.
-        route = this.fastRouter.find(ctx.method, ctx.path)
+        route = this[fastRouter].find(ctx.method, ctx.path)
         // put the matched route inside the cache.
-        this.cache.set(requestCacheKey, route)
+        this[cache].set(requestCacheKey, route)
       }
 
       // extract the handler func and the params array.
@@ -160,19 +204,54 @@ class Router {
 
       // check the handler func isn't defined.
       if (!handler) {
-        // warning: need more work with trek-router.
-        // - 501: the current path isn't exist inside the router stack.
-        // - 405: the current path is exist inside the router stack with diff method than requested.
-        // - remove the throwing decision and use `option.throw`.
-        // - make the throw way more flexible by pass `option.methodNotAllowed` func for 405
-        // and `option.notImplemented` for 501 and make example with `@hapi/boom` methods.
+        // warning: need more work with trek-router for support 'param' and 'match-any' route.
 
-        // the current version support the path not impl. as method not allowed.
-        // support 405 method not allowed.
-        ctx.throw(405, `"${ctx.method}" is not allowed in "${ctx.path}".`)
+        // get methods exist on allow header.
+        const allowHeaderFiled = this[getAllowHeaderTuple](path)
 
-        // suport 501 not implemented.
-        // ctx.throw(501, `"${ctx.path}" not implemented.`)
+        if (allowHeaderFiled) {
+          // if `OPTIONS` request responds with allowed methods.
+          if (ctx.method === 'OPTIONS') {
+            ctx.status = 204
+            ctx.set('Allow', allowHeaderFiled.methods.join(', '))
+            ctx.body = ''
+            return
+          }
+
+          // support 405 method not allowed.
+          if (this[throws]) {
+            throw typeof this[methodNotAllowed] === 'function'
+              ? this[methodNotAllowed]()
+              : (() => {
+                const notAllowedError = new Error(`"${ctx.method}" is not allowed in "${ctx.path}".`)
+                notAllowedError.statusCode = 405
+
+                return notAllowedError
+              })()
+          }
+
+          ctx.status = 405
+          ctx.set('Allow', allowHeaderFiled.methods.join(', '))
+          ctx.body = `"${ctx.method}" is not allowed in "${ctx.path}".`
+          return
+        }
+
+        // suport 501 path not implemented.
+        if (this[throws]) {
+          throw typeof this[notImplemented] === 'function'
+            ? this[notImplemented]()
+            : (() => {
+              const notImplError = new Error(`"${ctx.path}" not implemented.`)
+              notImplError.statusCode = 501
+
+              return notImplError
+            })()
+        }
+
+        ctx.status = 501
+        ctx.set('Allow', '')
+        ctx.body = `"${ctx.path}" not implemented.`
+        return
       }
 
       // check if the route params isn't empty array.
@@ -186,7 +265,7 @@ class Router {
       }
 
       // wait to all middlewares stored by the `use` method.
-      await Promise.all(this.middlewaresStore)
+      await Promise.all(this[middlewaresStore])
 
       // wait the handler.
       await handler(ctx)
