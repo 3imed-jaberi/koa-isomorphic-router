@@ -166,7 +166,7 @@ router
 
 ### router.use(...middlewares)
 
-Use given middleware(s). Currently, use middleware(s) for all paths.
+Use given middleware(s). Currently, use middleware(s) for all paths of router isntance.
 
 ### router.routes()
 
