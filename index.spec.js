@@ -1,3 +1,9 @@
+/*!
+ * koa-isomorphic-router test
+ */
+
+'use-strict'
+
 const Koa = require('koa')
 const request = require('supertest')
 const assert = require('assert')
