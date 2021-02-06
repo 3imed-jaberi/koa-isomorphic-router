@@ -105,16 +105,16 @@ const Koa = require('koa')
 const Router = require('koa-isomorphic-router')
 
 const app = new Koa()
-const router = Router()
+const router = new Router()
 
 router
   .get('/product/:id', (ctx, next) => {
     ctx.body = { productId: ctx.params.id }
   })
 
-app.use(router.routes());
+app.use(router.routes())
 
-app.listen(5050);
+app.listen(5050)
 ```
 
 
