@@ -271,7 +271,7 @@ class Router {
 }
 
 /**
- * Expose `Router()`.
+ * Expose `Router`.
  */
 
 module.exports = Router
